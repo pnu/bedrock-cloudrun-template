@@ -1,0 +1,43 @@
+##
+# docker-compose.sql.yml
+#
+# Usage:
+#   export GCP_KEY_PATH=~/keys/project-sql-key.json
+#   export CLOUDSQL_CONNECTION_NAME=project-name:region:instance-name
+#   export CLOUDSQL_USER=root
+#   export CLOUDSQL_PASSWORD=""
+#   docker-compose -f docker-compose.yml -f docker-compose.sql.yml
+##
+version: '3'
+
+services:
+  app:
+    environment:
+      # These environment variables are used by your application.
+      # You may choose to reuse your production configuration as implied by this file,
+      # but an alternative database instance and user credentials is recommended.
+      - CLOUDSQL_CONNECTION_NAME
+      - CLOUDSQL_USER
+      - CLOUDSQL_PASSWORD
+    volumes:
+      # Mount the volume for the cloudsql proxy.
+      - cloudsql:/cloudsql
+    depends_on:
+      - sql_proxy
+
+  sql_proxy:
+    image: gcr.io/cloudsql-docker/gce-proxy:1.19.1
+    command:
+      - "/cloud_sql_proxy"
+      - "-dir=/cloudsql"
+      - "-instances=${CLOUDSQL_CONNECTION_NAME}"
+      - "-credential_file=/tmp/keys/keyfile.json"
+    # Allow the container to bind to the unix socket.
+    user: root
+    volumes:
+      - ${GCP_KEY_PATH}:/tmp/keys/keyfile.json:ro
+      - cloudsql:/cloudsql
+
+volumes:
+  # This empty property initializes a named volume.
+  cloudsql:

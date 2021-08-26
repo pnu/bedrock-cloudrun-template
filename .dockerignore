@@ -1,0 +1,6 @@
+.*
+/Dockerfile
+/vendor
+/web/wp
+/web/app/advanced-cache.php
+/web/app/object-cache.php

@@ -1,0 +1,17 @@
+##
+# docker-compose.access.yml
+#
+# Usage:
+#   export GCP_KEY_PATH=~/keys/project-key.json
+#   docker-compose -f docker-compose.yml -f docker-compose.access.yml
+##
+version: '3'
+
+services:
+  app:
+    environment:
+      # /docs/authentication/production
+      GOOGLE_APPLICATION_CREDENTIALS: /tmp/keys/keyfile.json
+    volumes:
+      # Inject your specific service account keyfile into the container at runtime.
+      - ${GCP_KEY_PATH}:/tmp/keys/keyfile.json:ro
